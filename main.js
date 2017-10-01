@@ -1,15 +1,18 @@
 var oReq = new XMLHttpRequest();
 var data;
-var updateRate;
 var get = {};
 var percentage = 0;
 var container;
-var containerWidth;
-var containerTop;
 var full;
 var empty;
 var title;
 var stats;
+var participantId;
+var updateRate;
+var donationsSince;
+var donationGoal;
+var containerWidth;
+var containerTop;
 var titleText;
 var titleSize;
 var titleLetterSpacing;
@@ -25,8 +28,19 @@ var statsColor;
 var statsOutlineColor;
 var statsOutlineWidth;
 
-function usd(x) {
+function usd(x) 
+{
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function parseDonationsSince(param)
+{
+    if (param)
+    {
+        var yyyymmdd = param.split("-");
+        return new Date(yyyymmdd[0], parseInt(yyyymmdd[1]) - 1, yyyymmdd[2]);
+    }
+    return null;
 }
 
 function init()
@@ -43,10 +57,13 @@ function init()
         }
     }
     
-    // Set default option values
+    // Get options and set default values
+    participantId = get['participantId'] || "247547";
+    donationsSince = parseDonationsSince(get['donationsSince']);
+    donationGoal = get['donationGoal'] || 0;
+    updateRate = get['updateRate'] || 30;
     containerWidth = get['containerWidth'] || 1280;
     containerTop = get['containerTop'] || "0";
-    updateRate = get['updateRate'] || 10;
     titleText = get['title'] || "FUNDRAISING GOAL";
     titleSize = get['titleSize'] || "60";
     titleLetterSpacing = get['titleLetterSpacing'] || "8";
@@ -55,7 +72,6 @@ function init()
     titleColor = get['titleColor'] || "ffe9a8";
     titleOutlineColor = get['titleOutlineColor'] || "000000";
     titleOutlineWidth = get['titleOutlineWidth'] || "1.5";
-    
     statsSize = get['statsSize'] || "60";
     statsLetterSpacing = get['statsLetterSpacing'] || "8";
     statsTop = get['statsTop'] || "180";
@@ -75,7 +91,6 @@ function init()
     container.height(300 * (containerWidth / 1280));
     full.css("top", containerTop);
     empty.css("top", containerTop);
-    console.log(top);
     title.text(titleText);
     title.css("font-size", titleSize + "px");
     title.css("letter-spacing", titleLetterSpacing + "px");
@@ -93,29 +108,55 @@ function init()
 
 function handleResponse()
 {
+    var raisedAmount;
+    var goalAmount;
+    
     data = JSON.parse(this.responseText);
-    if (data.fundraisingGoal > 0)
+    
+    if (donationsSince && donationGoal > 0)
     {
-        percentage = data.totalRaisedAmount / data.fundraisingGoal;
+        goalAmount = Math.max(donationGoal, 1);
+        raisedAmount = 0;
+        data.forEach(function(donationData)
+        {
+            var date = new Date(donationData.createdOn);
+            
+            console.log("donation date: " + date + ", donationsSince: " + donationsSince);
+            if (date >= donationsSince)
+            {
+                raisedAmount += donationData.donationAmount;
+            }
+        });
     }
     else
     {
-        percentage = 0;
+        goalAmount = Math.max(data.fundraisingGoal, 1);
+        raisedAmount = data.totalRaisedAmount;
     }
-    
-    percentage = Math.min(Math.max(percentage, 0), 1);
+    percentage = Math.min(Math.max(raisedAmount / goalAmount, 0), 1);
     full.width(Math.ceil(containerWidth * percentage));
     empty.width(Math.floor(containerWidth * (1 - percentage)));
     full.css("background-size", containerWidth + "px auto");
     empty.css("background-size", containerWidth + "px auto");
-    stats.text("$" + usd(data.totalRaisedAmount) + " / $" + usd(data.fundraisingGoal));
+    stats.text("$" + usd(raisedAmount) + " / $" + usd(goalAmount));
     
     window.setTimeout(function() { getData() }, updateRate * 1000);
 }
 
 function getData()
 {
-    oReq.open("GET", "https://www.extra-life.org/index.cfm?fuseaction=donorDrive.participant&participantID=247547&format=json");
+    var url;
+    
+    if (donationsSince && donationGoal > 0)
+    {
+        url = "https://www.extra-life.org/index.cfm?fuseaction=donorDrive.participantDonations&participantID=" + participantId + "&format=json";
+    }
+    else
+    {
+        url = "https://www.extra-life.org/index.cfm?fuseaction=donorDrive.participant&participantID=" + participantId + "&format=json";
+    }
+    
+    oReq.open("GET", url);
     oReq.send();
 }
 

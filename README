@@ -10,7 +10,8 @@ https://klutch.github.io/happydonations/
 
 is the same as this:
 https://klutch.github.io/happydonations/
-?containerWidth=1280
+?participantId=247547
+&containerWidth=1280
 &containerTop=0
 &updateRate=10
 &titleText=FUNDRAISING%20GOAL
@@ -30,3 +31,7 @@ https://klutch.github.io/happydonations/
 
 All the values in the example above are the default values, so use any of those
 as a starting point for tweaking.
+
+For weekly or other custom goals, just set the `donationsSince` date with the format
+`YYYY-MM-DD`, and an end goal in `donationGoal`. Custom goals don't work without both
+a `donationsSince` and `donationGoal` parameter.
