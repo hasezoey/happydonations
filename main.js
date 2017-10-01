@@ -138,7 +138,7 @@ function handleResponse()
     full.css("background-size", containerWidth + "px auto");
     empty.css("background-size", containerWidth + "px auto");
     stats.text("$" + usd(raisedAmount) + " / $" + usd(goalAmount));
-    console.log("Updated donations at: " + Date.now())
+    console.log("Updated donations at: " + new Date(Date.now()));
     
     window.setTimeout(function() { getData() }, updateRate * 1000);
 }
