@@ -121,7 +121,6 @@ function handleResponse()
         {
             var date = new Date(donationData.createdOn);
             
-            console.log("donation date: " + date + ", donationsSince: " + donationsSince);
             if (date >= donationsSince)
             {
                 raisedAmount += donationData.donationAmount;
@@ -139,6 +138,7 @@ function handleResponse()
     full.css("background-size", containerWidth + "px auto");
     empty.css("background-size", containerWidth + "px auto");
     stats.text("$" + usd(raisedAmount) + " / $" + usd(goalAmount));
+    console.log("Updated donations at: " + Date.now())
     
     window.setTimeout(function() { getData() }, updateRate * 1000);
 }
