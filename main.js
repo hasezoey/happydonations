@@ -27,10 +27,11 @@ var statsTop;
 var statsColor;
 var statsOutlineColor;
 var statsOutlineWidth;
+var useDollarSign;
 
-function usd(x) 
+function usd(x, sign) 
 {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (sign ? "$" : "") + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function parseDonationsSince(param)
@@ -78,6 +79,7 @@ function init()
     statsColor = get['statsColor'] || "bdef64";
     statsOutlineColor = get['statsOutlineColor'] || "000000";
     statsOutlineWidth = get['statsOutlineWidth'] || "1.5";
+    useDollarSign = get['useDollarSign']  == "true";
     
     // Get elements
     container = $("#container");
@@ -137,7 +139,7 @@ function handleResponse()
     empty.width(Math.floor(containerWidth * (1 - percentage)));
     full.css("background-size", containerWidth + "px auto");
     empty.css("background-size", containerWidth + "px auto");
-    stats.text("$" + usd(raisedAmount) + " / $" + usd(goalAmount));
+    stats.text(usd(raisedAmount, useDollarSign) + " / " + usd(goalAmount, useDollarSign));
     console.log("Updated donations at: " + new Date(Date.now()));
     
     window.setTimeout(function() { getData() }, updateRate * 1000);
