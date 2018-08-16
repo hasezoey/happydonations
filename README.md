@@ -8,7 +8,8 @@ Basically, it's just:
 All the options are... optional. So this:
 https://klutch.github.io/happydonations/
 
-is the same as this:
+is the same as this: <br/>
+```
 https://klutch.github.io/happydonations/
 ?participantId=247547
 &containerWidth=1280
@@ -28,7 +29,8 @@ https://klutch.github.io/happydonations/
 &statsColor=bdef64
 &statsOutlineColor=000000
 &statsOutlineWidth=1.5
-&useDollarSign=false
+&sign=$
+```
 
 All the values in the example above are the default values, so use any of those
 as a starting point for tweaking.

@@ -1,170 +1,138 @@
-var oReq = new XMLHttpRequest();
-var data;
-var get = {};
-var percentage = 0;
-var container;
-var full;
-var empty;
-var title;
-var stats;
-var participantId;
-var updateRate;
-var donationsSince;
-var donationGoal;
-var containerWidth;
-var containerTop;
-var titleText;
-var titleSize;
-var titleLetterSpacing;
-var titleTop;
-var titleLeft;
-var titleColor;
-var titleOutlineColor;
-var titleOutlineWidth;
-var statsSize;
-var statsLetterSpacing;
-var statsTop;
-var statsColor;
-var statsOutlineColor;
-var statsOutlineWidth;
-var useDollarSign;
+/**@type {string[]} */
+var get = {},
+    /**@type {number} */
+    percentage = 0,
+    /**@type {string | number} */
+    participantId,
+    /**@type {number} */
+    updateRate,
+    /**@type {Date} */
+    donationsSince,
+    /**@type {number} */
+    donationGoal,
+    /**@type {number} */
+    containerWidth,
+    /**@type {number} */
+    containerTop,
+    /**@type {string} */
+    sign = "$",
+    /**@type {string[]} */
+    query = [];
 
-function usd(x, sign) 
-{
-    return (sign ? "$" : "") + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-function parseDonationsSince(param)
-{
-    if (param)
-    {
-        var yyyymmdd = param.split("-");
+function parseDonationsSince(param) {
+    if (param) {
+        const yyyymmdd = param.split("-");
         return new Date(yyyymmdd[0], parseInt(yyyymmdd[1]) - 1, yyyymmdd[2]);
-    }
-    return null;
+    } else return null;
 }
 
-function init()
-{
+function init() {
     // Get options from url
-    if(document.location.toString().indexOf('?') !== -1) 
-    {
-        var query = document.location.toString().replace(/^.*?\?/, '').replace(/#.*$/, '').split('&');
+    if (document.location.toString().indexOf('?') !== -1) {
+        query = document.location.toString().replace(/^.*?\?/, '').replace(/#.*$/, '').split('&');
 
-        for(var i=0, l=query.length; i<l; i++) 
-        {
-           var aux = decodeURIComponent(query[i]).split('=');
-           get[aux[0]] = aux[1];
+        for (let i = 0; i < query.length; i++) {
+            var aux = decodeURIComponent(query[i]).split('=');
+            get[aux[0]] = aux[1];
         }
     }
-    
+
+    const title = {
+        text: get ['title'] || "FUNDRAISING GOAL",
+        size: get ['titleSize'] || "60",
+        letterSpacing: get ['titleLetterSpacing'] || "8",
+        top: get ['titleTop'] || "-10",
+        left: get ['titleLeft'] || "80",
+        color: get ['titleColor'] || "ffe9a8",
+        outlineColor: get ['titleOutlineColor'] || "000000",
+        outlineWidth: get ['titleOutlineWidth'] || "1.5"
+    };
+    const stats = {
+        size: get ['statsSize'] || "60",
+        letterSpacing: get ['statsLetterSpacing'] || "8",
+        top: get ['statsTop'] || "180",
+        color: get ['statsColor'] || "bdef64",
+        outlineColor: get ['statsOutlineColor'] || "000000",
+        outlineWidth: get ['statsOutlineWidth'] || "1.5"
+    };
+
     // Get options and set default values
-    participantId = get['participantId'] || "247547";
+    participantId = get['participantId'] || '247547';
     donationsSince = parseDonationsSince(get['donationsSince']);
     donationGoal = get['donationGoal'] || 0;
     updateRate = get['updateRate'] || 30;
     containerWidth = get['containerWidth'] || 1280;
-    containerTop = get['containerTop'] || "0";
-    titleText = get['title'] || "FUNDRAISING GOAL";
-    titleSize = get['titleSize'] || "60";
-    titleLetterSpacing = get['titleLetterSpacing'] || "8";
-    titleTop = get['titleTop'] || "-10";
-    titleLeft = get['titleLeft'] || "80";
-    titleColor = get['titleColor'] || "ffe9a8";
-    titleOutlineColor = get['titleOutlineColor'] || "000000";
-    titleOutlineWidth = get['titleOutlineWidth'] || "1.5";
-    statsSize = get['statsSize'] || "60";
-    statsLetterSpacing = get['statsLetterSpacing'] || "8";
-    statsTop = get['statsTop'] || "180";
-    statsColor = get['statsColor'] || "bdef64";
-    statsOutlineColor = get['statsOutlineColor'] || "000000";
-    statsOutlineWidth = get['statsOutlineWidth'] || "1.5";
-    useDollarSign = get['useDollarSign']  == "true";
-    
+    containerTop = get['containerTop'] || '0';
+    sign = get['sign'] || '$';
+
     // Get elements
-    container = $("#container");
-    full = $("#full");
-    empty = $("#empty");
-    title = $("#title");
-    stats = $("#stats");
-    
+    let jtitle = $("#title");
+    let jstats = $("#stats");
+
     // Setup layout
-    container.width(containerWidth);
-    container.height(300 * (containerWidth / 1280));
-    full.css("top", containerTop);
-    empty.css("top", containerTop);
-    title.text(titleText);
-    title.css("font-size", titleSize + "px");
-    title.css("letter-spacing", titleLetterSpacing + "px");
-    title.css("top", titleTop);
-    title.css("left", titleLeft);
-    title.css("color", titleColor);
-    title.css("-webkit-text-stroke", titleOutlineWidth + "px #" + titleOutlineColor);
-    stats.css("font-size", statsSize + "px");
-    stats.css("letter-spacing", statsLetterSpacing + "px");
-    stats.css("top", statsTop);
-    stats.css("color", statsColor);
-    stats.css("-webkit-text-stroke", statsOutlineWidth + "px #" + statsOutlineColor);
-    
+    $("#container").width(containerWidth);
+    $("#container").height(300 * (containerWidth / 1280));
+    $("#full").css("top", containerTop);
+    $("#empty").css("top", containerTop);
+    jtitle.text(title.text);
+    jtitle.css("font-size", title.size + "px");
+    jtitle.css("letter-spacing", title.letterSpacing + "px");
+    jtitle.css("top", title.top);
+    jtitle.css("left", title.left);
+    jtitle.css("color", title.color);
+    jtitle.css("-webkit-text-stroke", title.outlineWidth + "px #" + title.outlineColor);
+    jstats.css("font-size", stats.size + "px");
+    jstats.css("letter-spacing", stats.letterSpacing + "px");
+    jstats.css("top", stats.top);
+    jstats.css("color", stats.color);
+    jstats.css("-webkit-text-stroke", stats.outlineWidth + "px #" + stats.outlineColor);
 }
 
-function handleResponse()
-{
-    var raisedAmount;
-    var goalAmount;
-    
-    data = JSON.parse(this.responseText);
-    
-    if (donationsSince && donationGoal > 0)
-    {
-        goalAmount = Math.max(donationGoal, 1);
-        raisedAmount = 0;
-        data.forEach(function(donationData)
-        {
-            var date = new Date(donationData.createdOn);
-            
-            if (date >= donationsSince)
-            {
-                raisedAmount += donationData.donationAmount;
+function usd(x) {
+    return sign + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function jgetData() {
+    const url = donationsSince && donationGoal > 0 ?
+        `https://www.extra-life.org/index.cfm?fuseaction=donorDrive.participantDonations&participantID=${participantId}&format=json` :
+        `https://www.extra-life.org/index.cfm?fuseaction=donorDrive.participant&participantID=${participantId}&format=json`;
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        success: (data) => {
+            let raisedAmount,
+                goalAmount;
+
+            if (donationsSince && donationGoal > 0) {
+                goalAmount = Math.max(donationGoal, 1);
+                raisedAmount = 0;
+                data.forEach((donationData) => {
+                    if (new Date(donationData.createdOn) >= donationsSince)
+                        raisedAmount += donationData.donationAmount;
+                });
+            } else {
+                goalAmount = Math.max(data.fundraisingGoal, 1);
+                raisedAmount = data.totalRaisedAmount;
             }
-        });
-    }
-    else
-    {
-        goalAmount = Math.max(data.fundraisingGoal, 1);
-        raisedAmount = data.totalRaisedAmount;
-    }
-    percentage = Math.min(Math.max(raisedAmount / goalAmount, 0), 1);
-    full.width(Math.ceil(containerWidth * percentage));
-    empty.width(Math.floor(containerWidth * (1 - percentage)));
-    full.css("background-size", containerWidth + "px auto");
-    empty.css("background-size", containerWidth + "px auto");
-    stats.text(usd(raisedAmount, useDollarSign) + " / " + usd(goalAmount, useDollarSign));
-    console.log("Updated donations at: " + new Date(Date.now()));
-    
-    window.setTimeout(function() { getData() }, updateRate * 1000);
+            percentage = Math.min(Math.max(raisedAmount / goalAmount, 0), 1);
+            $("#full").width(Math.ceil(containerWidth * percentage));
+            $("#empty").width(Math.floor(containerWidth * (1 - percentage)));
+            $("#full").css("background-size", `${containerWidth}px auto`);
+            $("#empty").css("background-size", `${containerWidth}px auto`);
+            $("#stats").text(`${usd(raisedAmount)} / ${usd(goalAmount)}`);
+            console.log(`Updated donations at: ${new Date()}`);
+
+            setTimeout(jgetData, updateRate * 1000);
+        },
+        error: (data) => {
+            console.error(data);
+            setTimeout(jgetData, 10000); // 10sec retry
+        }
+    });
 }
 
-function getData()
-{
-    var url;
-    
-    if (donationsSince && donationGoal > 0)
-    {
-        url = "https://www.extra-life.org/index.cfm?fuseaction=donorDrive.participantDonations&participantID=" + participantId + "&format=json";
-    }
-    else
-    {
-        url = "https://www.extra-life.org/index.cfm?fuseaction=donorDrive.participant&participantID=" + participantId + "&format=json";
-    }
-    
-    oReq.open("GET", url);
-    oReq.send();
-}
-
-$().ready(function()
-{
+$(document).ready(() => {
     init();
-    oReq.addEventListener("load", handleResponse);
-    getData();
+    jgetData();
 });

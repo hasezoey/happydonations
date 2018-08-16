@@ -1,17 +1,15 @@
-html, body
-{
+html,
+body {
     margin: 0px;
     font-family: 'HortaRegular';
 }
 
-#container
-{
+#container {
     position: relative;
     width: 100%;
 }
 
-#title
-{
+#title {
     position: absolute;
     font-size: 70px;
     line-height: 40px;
@@ -19,8 +17,7 @@ html, body
     color: #ffffff;
 }
 
-#stats
-{
+#stats {
     position: absolute;
     top: 180px;
     width: 100%;
@@ -33,8 +30,8 @@ html, body
     -webkit-text-stroke: 2px #000000;
 }
 
-#full, #empty
-{
+#full,
+#empty {
     position: relative;
     top: 100px;
     height: 100%;
@@ -42,18 +39,16 @@ html, body
     z-index: 0;
 }
 
-#full
-{
+#full {
     background: url(bar_fg.png);
 }
 
-#empty
-{
+#empty {
     background: url(bar_bg.png);
     background-position: right 0px;
 }
 
-#bg, #fg
-{
+#bg,
+#fg {
     width: 1280px;
 }
